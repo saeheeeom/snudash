@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+        <div>
+        <input type="color" id="select_color">
+        <input type="radio" name="tool" value="circle" id="circle_menu">Circle
+        <input type="radio" name="tool" value="square" id="rect_menu">Rectangle
+        </div>
+        <svg id="svg">
+        </svg>
+
+        <div id="center-display"></div>
+        <div id="radius-display"></div>
+        
+        <script>
+            //  Button 받아오기
+            var clickedButton = null;
+            var circleMenu = document.getElementById("circle_menu");
+            circleMenu.addEventListener("click", circleFunction);
+            var rectMenu = document.getElementById("rect_menu");
+            rectMenu.addEventListener("click", rectFunction);
+
+            // svg 정의
+            var centerDisplay = document.getElementById("center-display");
+            var radiusDisplay = document.getElementById("radius-display");      
+            var svg = document.getElementById("svg");
+
+            svg.setAttribute("width", 600);
+            svg.setAttribute("height", 600);
+            svg.style.border ="1px solid black";
+            var obj = null;
+
+            // 각 버튼이 눌린 경우를 나누어 변수 지정
+            function circleFunction(evt) {
+                svg.removeEventListener("mousedown", startDrawRect);
+                svg.addEventListener("mousedown", startDrawCircle);
+                clickedButton = 0;
+                }
+
+            function rectFunction(evt) {
+                svg.removeEventListener("mousedown", startDrawCircle);
+                svg.addEventListener("mousedown", startDrawRect);
+                clickedButton = 1;
+                }
+
+            // 버튼에 따라 그리기 허용
+            function allowDraw() {
+                if (clickedButton == 0) {
+                    svg.addEventListener("mousedown", startDrawCircle);
+                    }
+                else if (clickedButton == 1) {
+                    svg.addEventListener("mousedown", startDrawRect);
+                    }
+                }
+            // 버튼에 따라 그리기 금지
+            function preventDraw() {
+                if (clickedButton == 0) {
+                    svg.removeEventListener("mousedown", startDrawCircle);
+                    }
+                else if (clickedButton == 1) {
+                    svg.removeEventListener("mousedown", startDrawRect);
+                    }
+                }   
+
+            // 원 그리기 함수
+            function startDrawCircle(evt) {
+                var x = evt.offsetX;
+                var y = evt.offsetY;
+                centerDisplay.innerHTML = x + ", " + y;
+        
+                var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", y);
+                circle.setAttribute("r", 1);
+                circle.style.fill = document.getElementById("select_color").value;
+                svg.appendChild(circle);
+                obj = circle;
+                // 원 위에 그리기 금지
+                circle.addEventListener("mouseover", preventDraw);
+                circle.removeEventListener("mouseout", preventDraw);
+                // 원 위에서 눌렀을 때 
+                circle.addEventListener("mousedown", start_move_C);
+                // 원 밖으로 나가면 그리기 허용
+                circle.addEventListener("mouseout", allowDraw);
+
+                svg.addEventListener("mousemove", drawCircle);
+                svg.addEventListener("mouseup", endDrawCircle);
+                }
+
+            function drawCircle(evt) {
+                var x = parseFloat(evt.offsetX);
+                var y = parseFloat(evt.offsetY);
+                radiusDisplay.innerHTML = evt.target;
+                console.log(evt);
+            
+                var cx = parseFloat(obj.getAttribute("cx"));
+                var cy = parseFloat(obj.getAttribute("cy"));
+                var r = Math.sqrt((cx - x)**2 + (cy - y)**2);
+                obj.setAttribute("r", r);
+                }
+
+            function endDrawCircle() {
+                svg.removeEventListener("mouseup", endDrawCircle);
+                svg.removeEventListener("mousemove", drawCircle);
+                // 원 위에 그리기 금지
+                circle.addEventListener("mouseover", preventDraw);
+                circle.removeEventListener("mouseout", preventDraw);
+                // 원 위에서 누르면 이동
+                circle.addEventListener("mousedown", start_move_C);
+                obj = null;
+                }
+
+            // 원 움직이기
+            function start_move_C(evt) {
+                target = this;
+                svg.addEventListener("mousemove", move_C);
+                this.addEventListener("mouseup", end_move_C);
+                }
+
+            function move_C(evt) {
+                target.setAttribute("cx", evt.offsetX);
+                target.setAttribute("cy", evt.offsetY);
+                }
+
+            function end_move_C() {
+                target = "null"
+                svg.removeEventListener("mousemove", move_C);
+                svg.removeEventListener("mouseup", end_move_C);
+                }
+            
+            // 사각형 그리기
+            function startDrawRect(evt) { 
+                var x = evt.offsetX;
+                var y = evt.offsetY;
+                centerDisplay.innerHTML = x + ", " + y;
+            
+                var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", x);
+                rect.setAttribute("y", y);
+                rect.setAttribute("width", 1);
+                rect.setAttribute("height", 1);
+                rect.style.fill = document.getElementById("select_color").value;
+                svg.appendChild(rect);
+                obj = rect;
+                // 사각형 위에서 그리기 금지
+                rect.addEventListener("mouseover", preventDraw)
+                rect.removeEventListener("mouseout", preventDraw)
+                // 사각형 위에서 눌렀을 때 
+                rect.addEventListener("mousedown", start_move_R);                
+                // 사각형 밖으로 나가면 그리기 허용
+                rect.addEventListener("mouseout", allowDraw);
+
+                svg.addEventListener("mousemove", drawRect);
+                svg.addEventListener("mouseup", endDrawRect);
+                }
+
+            function drawRect(evt) { 
+                var x = parseFloat(evt.offsetX);
+                var y = parseFloat(evt.offsetY);
+                radiusDisplay.innerHTML = evt.target;
+                console.log(evt);
+            
+                var rx = parseFloat(obj.getAttribute("x"));
+                var ry = parseFloat(obj.getAttribute("y"));
+                var width = Math.sqrt((rx-x)**2);
+                var height = Math.sqrt((ry-y)**2);
+                obj.setAttribute("width", width);
+                obj.setAttribute("height", height);
+                }
+
+            function endDrawRect() {
+                svg.removeEventListener("mouseup", endDrawRect);
+                svg.removeEventListener("mousemove", drawRect);
+                // 사각형 위 그리기 금지
+                rect.addEventListener("mouseover", preventDraw);
+                rect.removeEventListener("mouseout", preventDraw);
+                // 사각형 위에서 누르면 이동
+                rect.addEventListener("mousedown", start_move_R);
+                obj = null;
+                }
+
+            // 사각형 이동
+            function start_move_R(evt) {
+                target = this;
+                svg.addEventListener("mousemove", move_R);
+                svg.addEventListener("mouseup", end_move_R);
+                }
+
+            function move_R(evt) {
+                target.setAttribute("x", evt.offsetX);
+                target.setAttribute("y", evt.offsetY);
+                }
+
+            function end_move_R() {
+                target = "null";
+                svg.removeEventListener("mousemove", move_R);
+                svg.removeEventListener("mouseup", end_move_R);
+                }
+
+        </script>
+    </body>
+</html>

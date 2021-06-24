@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Google Map_sheom
+        </title>
+    </head>
+    <body>
+        <div id="map" style="width:400px; height:400px; background:yellow"></div>
+        <script>
+            function myMap() {
+                var mapOptions = {
+                    center: new google.maps.LatLng(37.5, 127),
+                    zoom: 10,
+                    mapTypeId: google.maps.MapTypeId.HYBRID
+                    }
+                var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+                }
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDFSKkJja8ho606rTWgCQRcK3ks0uM4aE&callback=myMap"></script>
+    </body>
+</html>

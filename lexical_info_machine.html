@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Lexical Information Production Machine</title>
+        <style>
+            #word-area {
+                width: 100px;
+            }
+            table {
+                border-collapse: collapse;
+                width: 640px;
+            }
+            .metaTR {
+                color: black;
+                background: lightgrey;
+                height: 10px;
+            }
+            td {
+                border: solid 1px black;
+      }
+            .info1 {
+                width: 40px;
+            }
+            .info2 {
+                width: 70px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>ETRI OPEN API를 활용한 어휘 정보 제공 머신</h1>
+        <h3>아래의 텍스트박스에 정보를 얻고 싶은 단어를 입력하세요.</h3></h2>
+        <input type="text" id = "word-area" value = "인공지능">
+        <input type="submit" id = "submit-button" value="정보 얻기">
+        <p id = "word-info-area"></p>
+        
+        <script>
+            var submitButton = document.getElementById("submit-button");
+            submitButton.addEventListener("click", function() {
+                var wordInfoArea = document.getElementById("word-info-area");
+                var wordInfoTable = "<table><tr class=\"metaTR\"><td class=\"info1\">품사</td><td class=\"info2\">어휘 장르</td><td>의미</td></tr><tr class=\"wordElement\"><td class=\"info1\">명사</td><td class=\"info2\">정보기술</td><td>인간의 지능이 가지는 학습, 추리, 적응, 논증 따위의 기능을 갖춘 컴퓨터 시스템. 전문가 시스템, 자연 언어의 이해, 음성 번역, 로봇 공학, 인공 시각, 문제 해결, 학습과 지식 획득, 인지 과학 따위에 응용한다</td></tr><tr class = \"wordElement\"><td class=\"info1\">명사</td><td class=\"info2\">정보기술</td><td>인간의 학습능력과 추론능력, 지각능력, 자연언어의 이해능력 등을 컴퓨터 프로그램으로 실현한 기술</td></table>"
+                wordInfoArea.innerHTML = wordInfoTable
+
+                // ETRI API (node.js)
+                var wordArea = document.getElementById("word-area");
+                var openApiURL = 'http://aiopen.etri.re.kr:8000/WiseWWN/Word';
+                var access_key = '532ace8c-bd0c-4f59-8309-b8f9111f9e44';
+                var word = wordArea.value;
+                
+                var requestJson = {
+                    'access_key': access_key,
+                    'argument': {
+                        'word': word
+                    }
+                };
+                // 이 코드는 node.js 개발환경에 적합하기 때문에 require 함수가 들어있습니다
+                var request = require('request'); 
+                var options = {
+                    url: openApiURL,
+                    body: JSON.stringify(requestJson),
+                    headers: {'Content-Type':'application/json; charset=UTF-8'}
+                };
+                request.post(options, function (error, response, body) {
+                    console.log('responseCode = ' + response.statusCode);
+                    console.log('responseBody = ' + body);
+                });
+            var wordInfoTable = "<table><tr class=\"metaTR\"><td class=\"info1\">품사</td><td class=\"info2\">어휘 장르</td><td>의미</td></tr><tr class=\"wordElement\"><td class=\"info1\">명사</td><td class=\"info2\">정보기술</td><td>인간의 지능이 가지는 학습, 추리, 적응, 논증 따위의 기능을 갖춘 컴퓨터 시스템. 전문가 시스템, 자연 언어의 이해, 음성 번역, 로봇 공학, 인공 시각, 문제 해결, 학습과 지식 획득, 인지 과학 따위에 응용한다</td></tr><tr class = \"wordElement\"><td class=\"info1\">명사</td><td class=\"info2\">정보기술</td><td>인간의 학습능력과 추론능력, 지각능력, 자연언어의 이해능력 등을 컴퓨터 프로그램으로 실현한 기술</td></table>"
+            wordInfoArea.innerHTML += wordInfoTable
+            })
+            
+        </script>
+
+    </body>
+</html>
